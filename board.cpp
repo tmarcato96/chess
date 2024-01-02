@@ -5,8 +5,6 @@
 #include "board.h"
 #include "piece.h"
 
-
-
 Board::Board(): square(64, 0) {
 
     loadFromFen(startFen);
