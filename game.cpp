@@ -11,7 +11,8 @@
 #define SCREEN_HEIGHT 800
 
 
-Game::Game() : board(new Board()) {
+Game::Game() : board(new Board()),
+               isPieceSelected{false} {
     pieceSprites = std::vector<Texture2D>(12);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Chess");
     loadPiecesSprites();
@@ -25,11 +26,74 @@ void Game::run() {
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(DARKGRAY);
-    
         drawBoard();
+        checkUserInput();
         EndDrawing();
     }
     CloseWindow();
+}
+
+bool Game::isMouseOnPiece(Vector2 pos, size_t& fPiece, size_t& rPiece) {
+    for (size_t file=0; file<8; ++file) {
+        for (size_t rank=0; rank<8; ++rank) {
+            float x0 = SCREEN_WIDTH / 2 - 4.0f*SQUARE_SIZE + file * SQUARE_SIZE;
+            float x1 = x0 + SQUARE_SIZE;
+            float y0 = SCREEN_HEIGHT / 2 - 4.0f*SQUARE_SIZE + rank * SQUARE_SIZE;
+            float y1 = y0 + SQUARE_SIZE;
+            int square = board->square[8 * rank + file];
+            if (square != Piece::None && pos.x > x0 && pos.x < x1 && pos.y > y0 && pos.y < y1) {
+                fPiece = file;
+                rPiece = rank;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+Position Game::getSquarePosition(Vector2 pos) {
+    for (size_t file=0; file<8; ++file) {
+        for (size_t rank=0; rank<8; ++rank) {
+            float x0 = SCREEN_WIDTH / 2 - 4.0f*SQUARE_SIZE + file * SQUARE_SIZE;
+            float x1 = x0 + SQUARE_SIZE;
+            float y0 = SCREEN_HEIGHT / 2 - 4.0f*SQUARE_SIZE + rank * SQUARE_SIZE;
+            float y1 = y0 + SQUARE_SIZE;
+            if (pos.x > x0 && pos.x < x1 && pos.y > y0 && pos.y < y1) {
+                Position squarePos = {file, rank};
+                return squarePos;
+            }
+        }
+    }
+}
+
+void Game::checkUserInput() {
+    Vector2 mouseSrcPos = GetMousePosition();
+    size_t fileSelectedPiece = 8, rankSelectedPiece = 8;
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && 
+        isMouseOnPiece(mouseSrcPos, fileSelectedPiece, rankSelectedPiece) &&
+        !isPieceSelected) {
+            isPieceSelected = true;
+            selectedPiece = board->square[8 * rankSelectedPiece + fileSelectedPiece];
+            selectedPieceIndex = Game::spriteToRender(selectedPiece);
+            board->square[8 * rankSelectedPiece + fileSelectedPiece] = Piece::None;
+
+        }
+    
+    if (isPieceSelected) {
+        Rectangle srcRect = {0.0f, 0.0f, 
+                             (float)pieceSprites[selectedPieceIndex].width, 
+                             (float)pieceSprites[selectedPieceIndex].height};
+        Rectangle dstRect = {mouseSrcPos.x - SQUARE_SIZE/2, mouseSrcPos.y - SQUARE_SIZE/2,
+                             (float)SQUARE_SIZE, (float)SQUARE_SIZE};
+        Vector2 origin = {0.0f, 0.0f};
+        DrawTexturePro(pieceSprites[selectedPieceIndex], srcRect, dstRect, origin, 0.0f, WHITE);
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+            isPieceSelected = false;
+            Position dstSquarePosition = getSquarePosition(mouseSrcPos);
+            board->square[8 * dstSquarePosition.rank + dstSquarePosition.file] = selectedPiece;
+        }
+    }
 }
 
 void Game::loadPiecesSprites() {
