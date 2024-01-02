@@ -24,6 +24,10 @@ void loadPieceSprites() {
     pieceSprites[9] = LoadTexture("sprites/bishop_b.png");
     pieceSprites[10] = LoadTexture("sprites/rook_b.png");
     pieceSprites[11] = LoadTexture("sprites/queen_b.png");
+
+    for (size_t i=0; i<12; ++i) {
+        SetTextureWrap(pieceSprites[i], TEXTURE_WRAP_MIRROR_CLAMP);
+    }
 }
 
 void CreateBoard() {
@@ -33,9 +37,8 @@ void CreateBoard() {
     Color darkColor = {169, 122, 101, 255};
     Color lightColor = {241, 217, 192, 255};
 
-    Rectangle srcRect = {0.0f, 0.0f, (float)pieceSprites[0].width, (float)pieceSprites[0].height};
-    Vector2 spriteOrigin = {0.0f, 0.0f};
-    int width = 8;
+    
+    const Vector2 spriteOrigin = {0.0f, 0.0f};
     for (size_t file = 0; file < 8; ++file) {
         for (size_t rank = 0; rank < 8; ++rank) {
             bool isLightSquare = (file + rank) % 2 != 0;
@@ -50,7 +53,7 @@ void CreateBoard() {
                          SCREEN_HEIGHT / 2 - 4.0f*SQUARE_SIZE + rank * SQUARE_SIZE,
                          (float)SQUARE_SIZE, 
                          (float)SQUARE_SIZE};
-            int square = board->square[width * rank + file];
+            int square = board->square[8 * rank + file];
             int spriteIndex;
             if (square != Piece::None) {
                 switch (square)
@@ -78,9 +81,35 @@ void CreateBoard() {
                 case (Piece::White | Piece::Queen):
                     spriteIndex = 5;
                     break;
+                case (Piece::Black | Piece::King):
+                    spriteIndex = 6;
+                    break;
+
+                case (Piece::Black | Piece::Pawn):
+                    spriteIndex = 7;
+                    break;
+
+                case (Piece::Black | Piece::Knight):
+                    spriteIndex = 8;
+                    break;
+
+                case (Piece::Black | Piece::Bishop):
+                    spriteIndex = 9;
+                    break;
+                
+                case (Piece::Black | Piece::Rook):
+                    spriteIndex = 10;
+                    break;
+
+                case (Piece::Black | Piece::Queen):
+                    spriteIndex = 11;
+                    break;
                 default:
                     break;
                 }
+                Rectangle srcRect = {0.0f, 0.0f, 
+                                     (float)pieceSprites[spriteIndex].width, 
+                                     (float)pieceSprites[spriteIndex].height};
                 DrawTexturePro(pieceSprites[spriteIndex], 
                                srcRect, dstRect, spriteOrigin, 0.0f, WHITE);
             }
