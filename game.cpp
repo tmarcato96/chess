@@ -18,9 +18,6 @@ Game::Game() : board(new Board()),
     loadPiecesSprites();
 
 }
-Game::~Game() {
-    CloseWindow();
-}
 
 void Game::run() {
     while (!WindowShouldClose()) {
@@ -68,14 +65,13 @@ Position Game::getSquarePosition(Vector2 pos) {
 
 void Game::checkUserInput() {
     Vector2 mouseSrcPos = GetMousePosition();
-    size_t fileSelectedPiece = 8, rankSelectedPiece = 8;
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && 
-        isMouseOnPiece(mouseSrcPos, fileSelectedPiece, rankSelectedPiece) &&
+        isMouseOnPiece(mouseSrcPos, srcFile, srcRank) &&
         !isPieceSelected) {
             isPieceSelected = true;
-            selectedPiece = board->square[8 * rankSelectedPiece + fileSelectedPiece];
+            selectedPiece = board->square[8 * srcRank + srcFile];
             selectedPieceIndex = Game::spriteToRender(selectedPiece);
-            board->square[8 * rankSelectedPiece + fileSelectedPiece] = Piece::None;
+            board->square[8 * srcRank + srcFile] = Piece::None;
 
         }
     
@@ -91,7 +87,12 @@ void Game::checkUserInput() {
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
             isPieceSelected = false;
             Position dstSquarePosition = getSquarePosition(mouseSrcPos);
-            board->square[8 * dstSquarePosition.rank + dstSquarePosition.file] = selectedPiece;
+            if (dstSquarePosition.file < 8 && dstSquarePosition.rank < 8) {
+                board->square[8 * dstSquarePosition.rank + dstSquarePosition.file] = selectedPiece;
+            }
+            else {
+                board->square[8 * srcRank + srcFile] = selectedPiece;
+            }
         }
     }
 }

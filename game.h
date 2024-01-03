@@ -18,9 +18,10 @@ class Game {
         std::vector<Texture2D> pieceSprites;
         std::unique_ptr<Board> board;
         bool isPieceSelected;
-        int selectedPieceIndex, selectedPiece;
+        int selectedPieceIndex = 8, selectedPiece = 8;
+        size_t srcFile, srcRank;
+        
         Game();
-        ~Game();
         void run();
         void loadPiecesSprites();
         int spriteToRender(int);
