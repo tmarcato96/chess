@@ -77,9 +77,8 @@ Position Game::index2Position(int index) {
 
 void Game::checkUserInput() {
     Vector2 mouseSrcPos = GetMousePosition();
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && 
-        isMouseOnPiece(mouseSrcPos, srcFile, srcRank) &&
-        !isPieceSelected) {
+    if (!isPieceSelected && IsMouseButtonDown(MOUSE_BUTTON_LEFT) && 
+        isMouseOnPiece(mouseSrcPos, srcFile, srcRank)) {
             isPieceSelected = true;
             selectedPiece = board->square[8 * srcRank + srcFile];
             selectedPieceIndex = Game::spriteToRender(selectedPiece);
@@ -113,9 +112,18 @@ void Game::checkUserInput() {
         }
 
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+            mouseSrcPos = GetMousePosition();
             isPieceSelected = false;
             Position dstSquarePosition = getSquarePosition(mouseSrcPos);
-            if (dstSquarePosition.file < 8 && dstSquarePosition.rank < 8) {
+            bool isdstSquareLegal = false;
+            for (auto move: moveGenerator->moves) {
+                if (move.targetSquare == 8 * dstSquarePosition.rank + dstSquarePosition.file) {
+                    isdstSquareLegal = true;
+                    break;
+                }
+            }
+
+            if (isdstSquareLegal && dstSquarePosition.file < 8 && dstSquarePosition.rank < 8) {
                 board->square[8 * dstSquarePosition.rank + dstSquarePosition.file] = selectedPiece;
             }
             else {
