@@ -16,6 +16,7 @@ namespace Piece {
 
     bool isColor(int, int);
     bool isSlidingPiece(int);
+    bool isType(int, int);
 }
 
 #endif

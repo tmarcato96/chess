@@ -380,7 +380,7 @@ endif
 # Define source code object files required
 #------------------------------------------------------------------------------------------------
 PROJECT_SOURCE_FILES ?= \
-    chess_game.cpp board.cpp game.cpp
+    chess_game.cpp board.cpp game.cpp move.cpp piece.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))

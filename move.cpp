@@ -1,15 +1,20 @@
 #include <vector>
+#include <iostream>
+#include <memory>
 #include "move.h"
 #include "board.h"
 #include "piece.h" 
 
 const std::vector<int> directionOffsets = {8, -8, -1, 1, 7, -7, 9, -9};
 
-MoveGenerator::MoveGenerator(Board* board) : board{board} {};
+MoveGenerator::MoveGenerator(const std::unique_ptr<Board>& board) : board{board} {};
 
 void MoveGenerator::generateSlidingMoves(int piece, int startSquare) {
 
-    for (int direction = 0; direction < 8; ++direction) {
+    int startDirection = (Piece::isType(piece, Piece::Bishop)) ? 4 : 0;
+    int endDirection = (Piece::isType(piece, Piece::Rook)) ? 4 : 8;
+
+    for (int direction = startDirection; direction < endDirection; ++direction) {
         for (int n = 0; n < board->numToEdge[startSquare].at(direction); ++n) {
             int targetSquare = startSquare + directionOffsets[direction] * (n + 1);
             int pieceOnTargetSquare = board->square[targetSquare];

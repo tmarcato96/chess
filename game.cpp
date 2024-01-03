@@ -12,7 +12,8 @@
 
 
 Game::Game() : board(new Board()),
-               isPieceSelected{false} {
+               isPieceSelected{false},
+               moveGenerator(new MoveGenerator(board)) {
     pieceSprites = std::vector<Texture2D>(12);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Chess");
     loadPiecesSprites();
@@ -63,6 +64,17 @@ Position Game::getSquarePosition(Vector2 pos) {
     }
 }
 
+Position Game::index2Position(int index) {
+    for (size_t file = 0; file < 8; ++file) {
+        for (size_t rank = 0; rank < 8; ++rank) {
+            if (8 * rank + file == index) {
+                Position position = {file, rank};
+                return position;
+            }
+        }
+    }
+}
+
 void Game::checkUserInput() {
     Vector2 mouseSrcPos = GetMousePosition();
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && 
@@ -72,7 +84,10 @@ void Game::checkUserInput() {
             selectedPiece = board->square[8 * srcRank + srcFile];
             selectedPieceIndex = Game::spriteToRender(selectedPiece);
             board->square[8 * srcRank + srcFile] = Piece::None;
-
+            if (Piece::isSlidingPiece(selectedPiece)) {
+                moveGenerator->moves.clear();
+                moveGenerator->generateSlidingMoves(selectedPiece, 8 * srcRank + srcFile);
+            }
         }
     
     if (isPieceSelected) {
@@ -83,6 +98,19 @@ void Game::checkUserInput() {
                              (float)SQUARE_SIZE, (float)SQUARE_SIZE};
         Vector2 origin = {0.0f, 0.0f};
         DrawTexturePro(pieceSprites[selectedPieceIndex], srcRect, dstRect, origin, 0.0f, WHITE);
+
+        // Highlight square to move 
+        Color highlightColor = {255, 51, 51, 75};
+        if (Piece::isSlidingPiece(selectedPiece)) {
+            const Vector2 squareSize = {(float)SQUARE_SIZE, (float)SQUARE_SIZE};
+            for (auto move: moveGenerator->moves) {
+                Position positionToHighlight = index2Position(move.targetSquare);
+                Vector2 squarePosToHighlight = {SCREEN_WIDTH / 2 - 4.0f*SQUARE_SIZE + positionToHighlight.file * SQUARE_SIZE, 
+                                                SCREEN_HEIGHT / 2 - 4.0f*SQUARE_SIZE + positionToHighlight.rank * SQUARE_SIZE};
+                
+                DrawRectangleV(squarePosToHighlight, squareSize, highlightColor);
+            }
+        }
 
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
             isPieceSelected = false;
@@ -168,8 +196,6 @@ int Game::spriteToRender(int square) {
         case (Piece::Black | Piece::Queen):
             spriteIndex = 11;
             break;
-        default:
-            break;
         }
         return spriteIndex;
     }
@@ -186,7 +212,7 @@ void Game::drawBoard() {
         for (size_t rank = 0; rank < 8; ++rank) {
             bool isLightSquare = (file + rank) % 2 != 0;
 
-            Color squareColor = isLightSquare ? WHITE: darkColor;
+            Color squareColor = isLightSquare ? lightColor: darkColor;
             Vector2 squarePos = {SCREEN_WIDTH / 2 - 4.0f*SQUARE_SIZE + file * SQUARE_SIZE, 
                                 SCREEN_HEIGHT / 2 - 4.0f*SQUARE_SIZE + rank * SQUARE_SIZE};
             
