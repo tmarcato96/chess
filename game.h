@@ -8,9 +8,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-struct Position {
-    size_t file, rank;
-};
 
 class Game {
     private:
@@ -32,7 +29,6 @@ class Game {
         bool isMouseOnPiece(Vector2, size_t&, size_t&);
         Position getSquarePosition(Vector2);
         void checkUserInput();
-        Position index2Position(int);
 };
 
 #endif

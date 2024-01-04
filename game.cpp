@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include<string>
 #include <raylib.h>
 #include "board.h"
 #include "piece.h"
@@ -64,16 +65,6 @@ Position Game::getSquarePosition(Vector2 pos) {
     }
 }
 
-Position Game::index2Position(int index) {
-    for (size_t file = 0; file < 8; ++file) {
-        for (size_t rank = 0; rank < 8; ++rank) {
-            if (8 * rank + file == index) {
-                Position position = {file, rank};
-                return position;
-            }
-        }
-    }
-}
 
 void Game::checkUserInput() {
     Vector2 mouseSrcPos = GetMousePosition();
@@ -87,6 +78,12 @@ void Game::checkUserInput() {
                 moveGenerator->moves.clear();
                 moveGenerator->generateSlidingMoves(selectedPiece, 8 * srcRank + srcFile);
             }
+            else if (Piece::isType(selectedPiece, Piece::Knight))
+            {
+                moveGenerator->moves.clear();
+                moveGenerator->generateKnightMoves(selectedPiece, 8 * srcRank + srcFile);
+            }
+            
         }
     
     if (isPieceSelected) {
@@ -100,16 +97,15 @@ void Game::checkUserInput() {
 
         // Highlight square to move 
         Color highlightColor = {255, 51, 51, 75};
-        if (Piece::isSlidingPiece(selectedPiece)) {
-            const Vector2 squareSize = {(float)SQUARE_SIZE, (float)SQUARE_SIZE};
-            for (auto move: moveGenerator->moves) {
-                Position positionToHighlight = index2Position(move.targetSquare);
-                Vector2 squarePosToHighlight = {SCREEN_WIDTH / 2 - 4.0f*SQUARE_SIZE + positionToHighlight.file * SQUARE_SIZE, 
-                                                SCREEN_HEIGHT / 2 - 4.0f*SQUARE_SIZE + positionToHighlight.rank * SQUARE_SIZE};
-                
-                DrawRectangleV(squarePosToHighlight, squareSize, highlightColor);
-            }
+        const Vector2 squareSize = {(float)SQUARE_SIZE, (float)SQUARE_SIZE};
+        for (auto move: moveGenerator->moves) {
+            Position positionToHighlight = moveGenerator->index2Position(move.targetSquare);
+            Vector2 squarePosToHighlight = {SCREEN_WIDTH / 2 - 4.0f*SQUARE_SIZE + positionToHighlight.file * SQUARE_SIZE, 
+                                            SCREEN_HEIGHT / 2 - 4.0f*SQUARE_SIZE + positionToHighlight.rank * SQUARE_SIZE};
+            
+            DrawRectangleV(squarePosToHighlight, squareSize, highlightColor);
         }
+        
 
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
             mouseSrcPos = GetMousePosition();
@@ -237,6 +233,7 @@ void Game::drawBoard() {
                                     (float)pieceSprites[spriteIndex].height};
                 DrawTexturePro(pieceSprites[spriteIndex], 
                             srcRect, dstRect, spriteOrigin, 0.0f, WHITE);
+            DrawText(std::to_string(8 * rank + file).c_str(), (int)squarePos.x, (int)squarePos.y, 16, BLACK);
             }
         }
     }

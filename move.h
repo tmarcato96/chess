@@ -5,6 +5,10 @@
 #ifndef MOVE_H
 #define MOVE_H
 
+struct Position {
+    size_t file, rank;
+};
+
 struct Move
 {
     int startSquare, targetSquare;
@@ -20,6 +24,8 @@ class MoveGenerator {
         // We need to be careful about clearing the moves every time;
         void generateMoves();
         void generateSlidingMoves(int, int);
+        void generateKnightMoves(int, int);
+        Position index2Position(int);
 };
 
 #endif
