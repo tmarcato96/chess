@@ -1,13 +1,12 @@
+#ifndef GAME_H
+#define GAME_H
+
 #include <memory>
 #include <vector>
 #include <raylib.h>
 #include "board.h"
 #include "piece.h"
 #include "move.h"
-
-#ifndef GAME_H
-#define GAME_H
-
 
 class Game {
     private:

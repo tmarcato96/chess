@@ -1,9 +1,10 @@
+#ifndef MOVE_H
+#define MOVE_H
+
 #include <vector>
 #include <memory>
 #include "board.h"
 
-#ifndef MOVE_H
-#define MOVE_H
 
 struct Position {
     size_t file, rank;

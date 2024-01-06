@@ -1,9 +1,11 @@
+#ifndef BOARD_H
+#define BOARD_H
+
 #include <vector>
 #include <map>
 #include <string>
+#include "move.h"
 
-#ifndef BOARD_H
-#define BOARD_H
 
 class Board {
     public:
